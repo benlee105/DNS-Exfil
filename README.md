@@ -84,7 +84,8 @@ sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"
 
 ## Step 11: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
 
-sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g'
+sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output
+sudo cat output | xxd -p -r > SecretFile.txt | cat SecretFile.txt
 
 ![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/68856338-b515-43e4-a873-d86df3ca9b27)
 
