@@ -13,17 +13,24 @@ Inbound - Allow ICMP, TCP DNS, UDP DNS, SSH
 Outbound - Any  
 
 ## Step 4: Install dnsmasq on EC2 instance and configure it
-sudo yum install dnsmasq  
-sudo nano /etc/dnsmasq.conf then input the content below, right at the bottom of the config file  
+`sudo yum install dnsmasq`  
+`sudo nano /etc/dnsmasq.conf`  
+  
+Then input the content below, right at the bottom of the config file    
   
 listen-address=<EC2's private IP>  
 address=/#/<EC2's public IP>  
 log-queries  
 log-facility=/var/log/dnsmasq.log  
   
-Restart the VM, or find a way to restart dnsmasq (sudo systemctl restart systemd-networkd.service)  
+Restart the VM, or find a way to restart dnsmasq 
+`ps -aux | grep dnsmasq`  
+`sudo kill <pid of dnsmasq>`
+`sudo systemctl restart systemd-networkd.service`  
+`sudo dnsmasq`
 
-sudo dnsmasq  
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/b0cfaf2f-93c0-4967-957c-cd3269241435)
+  
 
 ## Step 5: Go to Route 53 config, note down default SOA and NS records  
   
