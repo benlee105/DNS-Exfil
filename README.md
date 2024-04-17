@@ -45,14 +45,17 @@ Route 53 > click Hosted zones
 ## Step 6: In Route 53 config, create 2x A Record to point NS record to your EC2 instance
 **Record Name:** ns1.<yourdomain.com>  
 **Type:** A  
-**Value:** <your EC2 public IP address>  
+**Value:** your EC2 public IP address  
 **TTL:** 300  
 
 **Record Name:** ns2.<yourdomain.com>  
 **Type:** A  
-**Value:** <your EC2 public IP address>
+**Value:** your EC2 public IP address  
 **TTL:** 300  
 
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/25738c09-9728-44b0-bab4-4534f07e0b0a)
+
+  
 ## Step 7: Modify existing NS Record to point to your NS records, which point to your EC2 instance
 **Record Name:** <yourdomain.com>  
 **Type:** NS  
@@ -61,13 +64,12 @@ ns1.<yourdomain.com>
 ns2.<yourdomain.com>  
 **TTL:** 60  
 
-
 ## Step 8: Modify existing SOA record to point to your NS record, which points to your EC2 instance
 **Record Name:** <yourdomain.com>  
 **Type:** SOA  
 **Value:** ns1.<yourdomain.com>. admin.<yourdomain.com> 1 7200 900 1209600 86400  
 **TTL:** 60  
-
+  
   
 ## Step 9: Note down default glue records
 In Route 53, click on Registered domains > click Actions > Edit name servers
