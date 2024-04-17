@@ -1,4 +1,4 @@
-# DNS_Exfil
+# DNS Exfil
 DNS Exfiltration Setup on AWS
 
 ## Step 1: Purchase Domain Name on Route 53
