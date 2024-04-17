@@ -53,6 +53,17 @@ ns2.<yourdomain.com>
 **Value:** ns1.<yourdomain.com>. admin.<yourdomain.com> 1 7200 900 1209600 86400  
 **TTL:** 60  
 
+## Step 9: Modify glue records
+In Route 53, click on Registered domains > click Actions > Edit name servers
+
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/ca4d78ab-49ac-4880-bbfc-755626bd8bcf)  
+    
+
+Note down the current name server settings before making any modifications  
+
+![image](https://github.com/benlee105/DNS-Exfil/assets/62729308/35cf3290-b494-45de-9752-fea7e57e7f91)
+
+
 ## Step 9: Use CMD to nslookup as a test
 nslookup -q=TXT 12332145343dafdsa234234123123453asdf234sadfsadfasdf ns1.<yourdomain.com>  
 
