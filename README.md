@@ -139,3 +139,7 @@ There may be rare occasions where your output file is blank. Troubleshoot with c
 Check that you're "cutting" correctly from the dnsmasq log using `sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 6 -d ' ' `.  
   
 Adjust "-f 6" to "-f 5" or "-f 7" to change where to cut the log. Once you get the right spot, modify cut command accordingly.
+
+
+### Regex to search for 1.xxxxx.dnsname.com, 10.xxxxx.dnsname.com, 100.xxxxx.dnsname.com
+sudo cat /var/log/dnsmasq.log | grep -F "query[A]" | cut -f 6 -d ' ' | grep -P "^\d{1,3}\."  
